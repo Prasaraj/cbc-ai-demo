@@ -1,12 +1,26 @@
 {
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "50mb" }
     },
     {
-      "source": "/:path*",
-      "destination": "/streamlit_app.py"
+      "src": "streamlit_app.py",
+      "use": "vercel-streamlit",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "streamlit_app.py"
     }
   ]
 }
