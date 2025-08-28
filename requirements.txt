@@ -10,3 +10,4 @@ lightgbm
 joblib
 pydantic
 requests
+gunicorn  # <-- เพิ่มบรรทัดนี้เข้าไป
