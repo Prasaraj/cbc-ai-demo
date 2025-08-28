@@ -1,31 +1,39 @@
 {
-    "functions": {
-      "api/index.py": {
-        "maxDuration": 45,
-        "memory": 1024
-      }
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
-    "builds": [
-      {
-        "src": "api/index.py",
-        "use": "@vercel/python"
-      },
-      {
-        "src": "streamlit_app.py",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "static"
-        }
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "api/index.py"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/streamlit_app.py"
-      }
-    ]
-  }
+    {
+      "source": "/:path*",
+      "destination": "/streamlit_app.py"
+    }
+  ]
+}```
+
+**คำอธิบายการเปลี่ยนแปลง:**
+
+1.  **ลบ `builds` และ `functions` ทั้งหมด:** เราได้ลบสองส่วนนี้ออกไปอย่างสมบูรณ์
+2.  **ใช้ `rewrites` แทน:** `rewrites` เป็นวิธีที่ทันสมัยและยืดหยุ่นกว่าในการบอก "กฎจราจร" ให้ Vercel
+    *   **`"source": "/api/:path*"`:** กฎข้อแรกบอกว่า "ถ้ามีคำขอ (request) ใดๆ ก็ตามที่เข้ามายัง URL ที่ขึ้นต้นด้วย `/api/`..."
+    *   **`"destination": "/api/:path*"`:** "...ให้ส่งคำขอนั้นไปยังไฟล์หรือฟังก์ชันที่อยู่ในโฟลเดอร์ `/api`" (Vercel จะหา `index.py` เจอเองโดยอัตโนมัติ)
+    *   **`"source": "/:path*"`:** กฎข้อที่สองบอกว่า "สำหรับคำขออื่นๆ ทั้งหมดที่เหลือ..."
+    *   **`"destination": "/streamlit_app.py"`:** "...ให้ส่งคำขอนั้นไปให้แอป Streamlit ของเรา (`streamlit_app.py`) เป็นผู้จัดการ"
+
+**ทำไมวิธีนี้ถึงดีกว่า?**
+*   **เป็นไปตามแนวทางปฏิบัติล่าสุดของ Vercel:** โค้ดนี้สั้นลงและเป็นไปตาม Convention ใหม่
+*   **Zero Configuration:** มันอาศัยความสามารถในการตรวจจับอัตโนมัติ (Zero Configuration) ของ Vercel ซึ่งทำให้การตั้งค่าง่ายขึ้น
+*   **แก้ไขปัญหาได้ตรงจุด:** การลบ `functions` และ `builds` ที่ขัดแย้งกันออกไปจะแก้ข้อผิดพลาดที่คุณเจอได้อย่างแน่นอน
+
+---
+
+### **แผนปฏิบัติการ**
+
+1.  **เปิดไฟล์ `vercel.json`** ในโปรเจกต์ของคุณ
+2.  **ลบเนื้อหาเก่าทิ้งทั้งหมด**
+3.  **คัดลอกและวาง** โค้ด `json` ใหม่ข้างบนนี้ลงไปแทน
+4.  **บันทึกไฟล์**
+5.  **Commit และ Push** การเปลี่ยนแปลงนี้ขึ้นไปยัง GitHub Repository ของคุณ
+6.  **Redeploy บน Vercel:** ไปที่ Vercel Dashboard ของโปรเจกต์คุณ แล้วทำการ Deploy ใหม่อีกครั้ง (โดยปกติ Vercel จะตรวจจับการเปลี่ยนแปลงและ Redeploy ให้อัตโนมัติ)
+
+เมื่อทำตามนี้แล้ว Vercel จะสามารถ Build และ Deploy โปรเจกต์ Full-stack ของคุณได้สำเร็จโดยไม่มีข้อผิดพลาดครับ
